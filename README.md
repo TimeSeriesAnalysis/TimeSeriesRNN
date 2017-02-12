@@ -1,6 +1,9 @@
 # TimeSeriesRNN
+
 Just to a give a look at the application of RNN on time series data.
 A very good post: [Understanding LSTM Networks](http://colah.github.io/posts/2015-08-Understanding-LSTMs//).
+
+## Some theory regarding LSTM
 
 + Traditional RNN receive two inputs, the previous output $h_{t-1}$ and the the current data instance $X_t$, then 
 using a traditional layer (tanh) it computes the next output $h_t$. The drawbacks of this method are that long term dependencies
@@ -22,3 +25,34 @@ the previous output $h_{t-1}$ and the so called cell-state $C_{t-1}$.
 	$C_{t}$ will be output as $h_t$
 	+ Finally the cell state $C_t$ passes through a tanh layer (to have elements between -1 and 1) and is multiplied
 	by the output of the previous layer
+
+## Some links
+
++ Nice blogs to start with RNN in tensorflow:
+	+ [simple example](http://monik.in/a-noobs-guide-to-implementing-rnn-lstm-using-tensorflow/)
+	+ [another simple implementation](https://gist.github.com/nivwusquorum/b18ce332bde37e156034e5d3f60f8a23)
+	+ [another](https://danijar.com/introduction-to-recurrent-networks-in-tensorflow/)
+	+ [a less simple example ](https://github.com/aymericdamien/TensorFlow-Examples/blob/master/notebooks/3_NeuralNetworks/convolutional_network.ipynb)
+	+ [how to structurate the code! to do after the first example is working ;) ](http://danijar.com/structuring-your-tensorflow-models/)
+	+ [extra features](http://www.wildml.com/2016/08/rnns-in-tensorflow-a-practical-guide-and-undocumented-features/)
+	
+## Idea for Time Series analysis like EEG:
++ Variant1:
+	+ Use SAX to get a sequence of letters
+	+ Une a one-hot-encoding to pass the values to a RNN
+	+ 2 models running on 2 separated threads:
+		+ Model for training (background)
+		+ Model for prediction (take the state of the last trained model)
+	+ The output could be:
+		+ The value of the next element (regression)
+		+ Some class (e.g., epileptic attack, movement ...)
++ Variant 2:
+	+ The same but using the mean value instead of a one-hot-encoding
++ Variant 3:
+	+ Is it possible to build sequences of patterns instead of sequences of letters only? like using word2vec?
+		
+## TODO:
++ Make the minimal example work with satic sax EEG data (2sigma data?)
++ Dump and Load a model
++ Open 2 models in 2 threads
++ Make the entire example work: online SAX + RNN
