@@ -51,6 +51,9 @@ the previous output $h_{t-1}$ and the so called cell-state $C_{t-1}$.
 + Variant 3:
 	+ Is it possible to build sequences of patterns instead of sequences of letters only? like using word2vec?
 		
+## Using Keras
++ http://www.pyimagesearch.com/2016/07/18/installing-keras-for-deep-learning/
+
 ## TODO:
 + Make the minimal example work with satic sax EEG data (2sigma data?)
 + Dump and Load a model
