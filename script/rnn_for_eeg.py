@@ -7,8 +7,9 @@ from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 numpy.random.seed(0)
-
-
+#http://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/
+#http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
+#http://machinelearningmastery.com/understanding-stateful-lstm-recurrent-neural-networks-python-keras/
 # Load dataset
 EEG_SAX = pd.read_csv("../data/EEG_SAX.csv",header = 0, index_col=0)
 X = EEG_SAX[range(14)]
