@@ -7,6 +7,10 @@ from keras.layers import LSTM
 from keras.layers.embeddings import Embedding
 from keras.preprocessing import sequence
 np.random.seed(0)
+
+#tuto : https://blog.keras.io/keras-as-a-simplified-interface-to-tensorflow-tutorial.html
+#http://www.jakob-aungiers.com/articles/a/LSTM-Neural-Network-for-Time-Series-Prediction
+
 #http://machinelearningmastery.com/sequence-classification-lstm-recurrent-neural-networks-python-keras/
 #http://machinelearningmastery.com/time-series-prediction-lstm-recurrent-neural-networks-python-keras/
 #http://machinelearningmastery.com/understanding-stateful-lstm-recurrent-neural-networks-python-keras/
@@ -36,17 +40,17 @@ y_test = np.take(y_test,np.asarray(range(sequence_length+1,len(y_test),sequence_
 X_test = X_test.reshape(-1,sequence_length,nb_eeg_sensors)
 X_test = X_test[0:y_test.shape[0],:,:]
 
-print X.columns
-print y.columns
-# Model creation
+# print X.columns
+# print y.columns
+# # Model creation
 
 model = Sequential()
-#model.add(Embedding(alphabet_size, embedding_vector_length, input_length=nb_eeg_sensors))
+# model.add(Embedding(alphabet_size, embedding_vector_length, input_length=nb_eeg_sensors))
 model.add(LSTM(nb_neurons_LSTM,stateful=True,batch_input_shape=(1,sequence_length,nb_eeg_sensors)))
-model.add(Dense(1, activation='relu')) # only one possible outcome: openened or closed
-model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
-print(model.summary())
-model.fit(X_train, y_train,validation_data=(X_test, y_test), nb_epoch=50,  batch_size=1, )
+# model.add(Dense(1, activation='relu')) # only one possible outcome: openened or closed
+# model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+# print(model.summary())
+# model.fit(X_train, y_train,validation_data=(X_test, y_test), nb_epoch=50,  batch_size=1, )
 #
 # Final evaluation of the model
 #scores = model.evaluate(X_test, y_test, verbose=0)
