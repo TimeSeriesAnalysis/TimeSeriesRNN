@@ -59,3 +59,52 @@ the previous output $h_{t-1}$ and the so called cell-state $C_{t-1}$.
 + Dump and Load a model
 + Open 2 models in 2 threads
 + Make the entire example work: online SAX + RNN
+
+
+
+
+
+
+# Time Series with Echo State Network
++ [vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem)
+## Liquid State Machine
++ https://en.wikipedia.org/wiki/Liquid_state_machine
++ http://reservoir-computing.org/software
++ [brian](http://briansimulator.org)
++ `conda install -c brian-team brian2=2.0.1`
+`
+from brian2 import *
+eqs = '''
+		dv/dt  = (ge+gi-(v+49*mV))/(20*ms) : volt
+		dge/dt = -ge/(5*ms)                : volt
+		dgi/dt = -gi/(10*ms)               : volt
+	  '''
+P = NeuronGroup(4000, eqs, threshold='v>-50*mV', reset='v=-60*mV')
+P.v = -60*mV
+Pe = P[:3200]
+Pi = P[3200:]
+Ce = Synapses(Pe, P, on_pre='ge+=1.62*mV')
+Ce.connect(p=0.02)
+Ci = Synapses(Pi, P, on_pre='gi-=9*mV')
+Ci.connect(p=0.02)
+M = SpikeMonitor(P)
+run(1*second)
+plot(M.t/ms, M.i, '.')
+show()
+`
+## Echo State Network
++ [Good introduction](http://www.scholarpedia.org/article/Echo_state_network)
++ [Hierarchical echo-state-machine](http://minds.jacobs-university.de/sites/default/files/uploads/papers/hierarchicalesn_techrep10.pdf)
++ [tutorial](https://www.pdx.edu/sites/www.pdx.edu.sysc/files/Jaeger_TrainingRNNsTutorial.2005.pdf)
++ [book](https://link.springer.com/chapter/10.1007%2F978-3-642-35289-8_36)
++ Other implementations:
+	+ https://github.com/sylvchev/simple_esn
+	+ http://minds.jacobs-university.de/sites/default/files/uploads/mantas/code/minimalESN_Oger.py.txt
++ [Oger](http://reservoir-computing.org/installing_oger)
++ Install mdp first with conda
++ to install oger download code and `sudo python setup.py install`
++ `import Oger`
+
+## [Extreme Learning Machine](https://en.wikipedia.org/wiki/Extreme_learning_machine)
++ [hierarchical extreme learning machine](http://ieeexplore.ieee.org/document/7280669/)
+
