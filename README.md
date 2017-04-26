@@ -104,7 +104,16 @@ show()
 + Install mdp first with conda
 + to install oger download code and `sudo python setup.py install`
 + `import Oger`
+### Echo State Network documentation for practical course
++ [ESN](http://minds.jacobs-university.de/sites/default/files/uploads/papers/PracticalESN.pdf)
++ [gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent)
++ [scholarpedia](http://www.scholarpedia.org/article/Echo_state_network)
+
 
 ## [Extreme Learning Machine](https://en.wikipedia.org/wiki/Extreme_learning_machine)
 + [hierarchical extreme learning machine](http://ieeexplore.ieee.org/document/7280669/)
+
+## LSTM
++ [jaungiers-github](https://github.com/jaungiers/LSTM-Neural-Network-for-Time-Series-Prediction)
++ [lstm](http://www.jakob-aungiers.com/articles/a/LSTM-Neural-Network-for-Time-Series-Prediction)
 
