@@ -53,8 +53,7 @@ for t in range(trainLen):
 # train the output
 reg = 1e-8  # regularization coefficient
 X_T = X.T
-Wout = dot( dot(Yt,X_T), linalg.inv( dot(X,X_T) + \
-    reg*eye(1+inSize+resSize) ) )
+Wout = dot( dot(Yt,X_T), linalg.inv( dot(X,X_T) + reg*eye(1+inSize+resSize) ) )
 #Wout = dot( Yt, linalg.pinv(X) )
 
 # run the trained ESN in a generative mode. no need to initialize here, 
