@@ -14,13 +14,14 @@ def identity_(x):
 	return 1.
 
 np.random.seed(666)
-RESERVOIR_SIZE = 100
+RESERVOIR_SIZE = 200
 INPUT_SIZE = 1
 OUTPUT_SIZE = 1
 STOCHASTIC_GRADIENT_DECENT_LEARNING_RATE = 0.001
 LEAKING_RATE = 0.9
 TIME_CONSTANT = 0.06
 NOISE_STRENGTH = 0.001
+RHO_W = 0.2
 class ESM:
 	def __init__(self,
 		reservoir_size = RESERVOIR_SIZE,
@@ -28,11 +29,14 @@ class ESM:
 		output_size = OUTPUT_SIZE,
 		leaking_rate = LEAKING_RATE,
 		learning_rate = STOCHASTIC_GRADIENT_DECENT_LEARNING_RATE,
+		rhoW = RHO_W,
 		activation_function_reservoir = tanh,
 		activation_function_output = tanh,
 		derivative_activation_function_output = tanh_,
 		time_constant = TIME_CONSTANT,
-		noise_strength = NOISE_STRENGTH):
+		noise_strength = NOISE_STRENGTH,
+		bias=False,
+		input_to_output=False):
 		"""
 		:param reservoir_size: Size of the Echo State Network
 		:type reservoir_size: int
@@ -55,31 +59,40 @@ class ESM:
 		:param noise_strength: noise strength
 		:type noise_strength: float
 		"""
+		# Load Options bias to output and input to output direct connections
+		self.bias = bias
+		self.input_to_output = input_to_output
+
 		# Load Parameters
 		self.leaking_rate = leaking_rate
 		self.learning_rate = learning_rate
 		self.time_constant = time_constant
 		self.noise_strength = noise_strength
+		self.rhoW = rhoW
 
 		# Echo State Network dimensions 
 		self.N = reservoir_size
-		self.K = input_size + 1
+		self.K = input_size
+		if self.bias:
+			self.K += 1
 		self.L = output_size
-
+		self.z_size = self.N
+		if self.input_to_output:
+			self.z_size += self.K
 		# States
 		self.u = np.ones(self.K)
 		self.x = np.zeros(self.N)
-		self.z = np.zeros(self.K + self.N)
+		self.z = np.zeros(self.z_size)
 		self._pre_y = np.zeros(self.L)
 		self.y = np.zeros(self.L)
 
 		# Weights
 		self.W = np.random.rand(self.N,self.N) - 0.5
 		rhoW = np.max(np.abs(np.linalg.eig(self.W)[0]))
-		self.W *= 0.2 / rhoW
+		self.W *= self.rhoW / rhoW
 		self.W_in = np.random.rand(self.N,self.K) - 0.5
-		self.W_fb = 0*(np.random.rand(self.N,self.L) - 0.5)
-		self.W_out = np.random.rand(self.L,self.N + self.K)*0.1
+		self.W_fb = np.random.rand(self.N,self.L) - 0.5
+		self.W_out = np.random.rand(self.L,self.z_size)*0.1
 		#self._W_out_gradient = np.random.randn(self.L,self.N + self.K)
 		
 		# Activation functions
@@ -109,13 +122,16 @@ class ESM:
 		delta_x = self.time_constant * self.f( self.W_in.dot(self.u) + self.W.dot(self.x) + self.W_fb.dot(self.y) + np.random.randn(*self.y.shape)*self.noise_strength)
 		self.x *= (1.-self.leaking_rate*self.time_constant)
 		self.x += delta_x
-		self.z[:self.K] = self.u[:]
-		self.z[self.K:] = self.x[:]
+		if self.input_to_output:
+			self.z[:self.K] = self.u[:]
+			self.z[self.K:] = self.x[:]
+		else:
+			self.z[:] = self.x[:]
+		print self.z.shape
+		print self.W_out.shape
+		print 
 		self._pre_y = self.W_out.dot(self.z)
-		
-		self.y = self.g(self._pre_y)
-
-			
+		self.y = self.g(self._pre_y)	
 
 	def _compute_gradient(self, y_target):
 		"""
@@ -147,9 +163,8 @@ class ESM:
 		self._update_reservoir(u = x, y_previous = y_previous, y_target = y)
 		self._stochastic_gradient_decent(y_target)
 
-	def fit(self, X, y):
-		initLen = 100
-		Z = np.zeros((X.shape[0]-initLen,self.z.size))
+	def fit(self, X, y, initLen = 100):
+		Z = np.zeros((X.shape[0]-initLen,self.z_size))
 		Y_ESM = y[initLen+1:X.shape[0]+1]
 
 		self._update_reservoir(X[0,:])
@@ -162,7 +177,7 @@ class ESM:
 		return Z,y
 
 	def predict(self,X,y):
-		Z = np.zeros((X.shape[0],self.z.size))
+		Z = np.zeros((X.shape[0],self.z_size))
 		Y_predicted = []
 		for i,y_i in enumerate(y):
 			x = X[i,:]
@@ -209,15 +224,16 @@ plt.show()
 esm = ESM(reservoir_size = 100,
 	input_size = 14,
 	output_size = 1,
-	leaking_rate = 0.9,
+	leaking_rate = 0.99,
 	learning_rate = STOCHASTIC_GRADIENT_DECENT_LEARNING_RATE,
+	rhoW = 0.2,
 	activation_function_reservoir = tanh,
 	activation_function_output = identity,
 	derivative_activation_function_output = identity_,
 	time_constant = 0.06,
 	noise_strength = NOISE_STRENGTH)
 
-training_size = 1000
+training_size = 500
 X_full,Y_full = esm.fit(u[:training_size,:],y[:training_size+1])
 _=plt.plot(pd.DataFrame(X_full))
 plt.show()
@@ -226,8 +242,9 @@ print X_full.shape
 plt.plot(esm.Wout)
 plt.show()
 
-X,Y = esm.predict(u[:training_size,:],y[:100])
+X,Y = esm.predict(u[training_size:1000,:],y[training_size+1:1001])
 
 plt.plot(range(len(Y)),Y)
-plt.plot(range(len(Y)),y[:len(Y)])
+plt.plot(range(len(Y)),y[training_size+1:1001])
 plt.show()
+
